@@ -1,0 +1,75 @@
+ISREDIT MACRO (PARM)                                                    00020000
+ISPEXEC CONTROL ERRORS RETURN                                           00030000
+CONTROL NOMSG NOLIST NOFLUSH NOSYMLIST NOCONLIST                        00040000
+/* ****************************************************************** */00070000
+/* find the pointed word                                              */00080000
+/* options: A  -  ALL ; L - LAST ; N -  NEXT ; P - PREV            
+/* ****************************************************************** */00120000
+ISREDIT (DLTBLINE,DLTBCOL) = CURSOR                                     00160000
+ISREDIT (DLTLINE) = LINE &DLTBLINE                                      00170000
+                                                                        00180000
+  SET HIGH_IND = 0                                                      00190000
+  SET IND = &DLTBCOL                                                    00200000
+  SET SPC= &STR( )                                                      00210000
+  SET EQU= &STR(=)                                                      00220000
+  SET CMM= &STR(,)                                                      00230000
+  SET AUS= &STR(*)                                                      00240000
+  SET SLS= &STR(/)                                                      00250000
+  IF &IND=0 THEN EXIT                                                   00260000
+  IF &IND = 1 THEN   +                                                  00270000
+   SET LOW_IND = 1                                                      00280000
+  ELSE                +                                                 00290000
+    DO                                                                  00300000
+      SET LOW_IND = &IND                                                00310000
+      DO UNTIL &LOW_IND = 1                                             00320000
+       SET CHK= &LOW_IND - 1                                            00330000
+       IF &STR(&SUBSTR(&CHK,&NRSTR(&DLTLINE))) = &STR( ) +              00340000
+       OR &STR(&SUBSTR(&CHK,&NRSTR(&DLTLINE))) = &STR(=) +              00350000
+       OR &STR(&SUBSTR(&CHK,&NRSTR(&DLTLINE))) = &STR(,) +              00360000
+       OR &STR(&SUBSTR(&CHK,&NRSTR(&DLTLINE))) = &STR(') +              00370000
+       OR &STR(&SUBSTR(&CHK,&NRSTR(&DLTLINE))) = &STR(:) +              00371003
+       OR &STR(&SUBSTR(&CHK,&NRSTR(&DLTLINE))) = &STR(*) +              00380000
+       OR &STR(&SUBSTR(&CHK,&NRSTR(&DLTLINE))) = &STR(&SLS) +           00390000
+       THEN GOTO LABEL1                                                 00400000
+       SET LOW_IND = &LOW_IND - 1                                       00410000
+      END                                                               00420000
+    END                                                                 00430000
+   LABEL1:    +                                                         00440000
+   SET DUMMY1 =                                                         00450000
+  IF &IND = 72 THEN   +                                                 00460000
+   SET HIGH_IND = 72                                                    00470000
+  ELSE                +                                                 00480000
+    DO                                                                  00490000
+      SET HIGH_IND = &IND                                               00500000
+      DO UNTIL &HIGH_IND = 72                                           00510000
+       SET CHK= &HIGH_IND + 1                                           00520000
+       IF &STR(&SUBSTR(&CHK,&NRSTR(&DLTLINE))) = &STR( ) +              00540000
+       OR &STR(&SUBSTR(&CHK,&NRSTR(&DLTLINE))) = &STR(=) +              00550000
+       OR &STR(&SUBSTR(&CHK,&NRSTR(&DLTLINE))) = &STR(,) +              00560000
+       OR &STR(&SUBSTR(&CHK,&NRSTR(&DLTLINE))) = &STR(') +              00570000
+       OR &STR(&SUBSTR(&CHK,&NRSTR(&DLTLINE))) = &STR(.) +              00580000
+       OR &STR(&SUBSTR(&CHK,&NRSTR(&DLTLINE))) = &STR(*) +              00590000
+       OR &STR(&SUBSTR(&CHK,&NRSTR(&DLTLINE))) = &STR(&SLS) +           00600000
+       THEN GOTO LABEL2                                                 00610000
+       SET HIGH_IND = &HIGH_IND + 1                                     00620000
+      END                                                               00630000
+    END                                                                 00640000
+   LABEL2:    +                                                         00650000
+   SET DUMMY1 =                                                         00660000
+  SET AAA=&SUBSTR(&LOW_IND:&HIGH_IND,&NRSTR(&DLTLINE))                  00670000
+ /* WRITE  &AAA / &SYSNSUB(1,&AAA) -                                    00671011
+                         &LENGTH(&SYSNSUB(1,&AAA))  */                  00672011
+/*IF &STR(&AAA)=     THEN EXIT                                          00680011
+  IF &LENGTH(&SYSNSUB(1,&AAA))=      THEN EXIT                          00681011
+SET WORD = FIRST                                                        00700104
+IF &PARM = A THEN -                                                     00700204
+  SET WORD = ALL                                                        00700306
+ELSE IF &PARM = L THEN -                                                00700404
+  SET WORD= LAST                                                        00700504
+ELSE IF &PARM = N THEN -                                                00700604
+  SET WORD= NEXT                                                        00700704
+ELSE IF &PARM = P THEN -                                                00700804
+  SET WORD= PREV                                                        00700904
+ELSE IF &PARM =   THEN                                                  00702009
+  ISREDIT  FIND "&SYSNSUB(0,&AAA)"  &WORD                               00730011
+EXIT                                                                    00740000
